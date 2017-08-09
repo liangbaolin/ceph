@@ -2356,6 +2356,54 @@ int validate_pool(IoCtx &io_ctx, CephContext *cct) {
     }
   }
 
+  std::string qos_type_name(rbd_image_qos_type_t type) {
+    switch (type) {
+    case RBD_IMAGE_QOS_TYPE_IOPS_READ:
+      return "iops_read";
+    case RBD_IMAGE_QOS_TYPE_IOPS_WRITE:
+      return "iops_write";
+    case RBD_IMAGE_QOS_TYPE_IOPS_RW:
+      return "iops_rw";
+    default:
+      return "unknown (" + stringify(type) + ")";
+    }
+  }
 
+  std::string qos_key_name(rbd_image_qos_key_t key) {
+    switch (key) {
+    case RBD_IMAGE_QOS_KEY_AVG:
+      return "avg";
+    case RBD_IMAGE_QOS_KEY_BURST:
+      return "burst";
+    default:
+      return "unknown (" + stringify(key) + ")";
+    }
+  }
 
+  std::string get_qos_metadata_key(rbd_image_qos_type_t qos_type,
+				   rbd_image_qos_key_t qos_key) {
+    return (RBD_IMAGE_QOS_PREFIX + qos_type_name(qos_type) + "_" + qos_key_name(qos_key));
+  }
+
+  rbd_image_qos_type_t get_qos_type(std::string qos_name) {
+    if (qos_name.find("iops_read")) {
+      return RBD_IMAGE_QOS_TYPE_IOPS_READ;
+    } else if (qos_name.find("iops_write")) {
+      return RBD_IMAGE_QOS_TYPE_IOPS_WRITE;
+    } else if (qos_name.find("iops_rw")) {
+      return RBD_IMAGE_QOS_TYPE_IOPS_RW;
+    } else {
+      return RBD_IMAGE_QOS_TYPE_END;
+    }
+  }
+
+  rbd_image_qos_key_t get_qos_key(std::string qos_name) {
+    if (qos_name.find("avg")) {
+      return RBD_IMAGE_QOS_KEY_AVG;
+    } else if (qos_name.find("burst")) {
+      return RBD_IMAGE_QOS_KEY_BURST;
+    } else {
+      return RBD_IMAGE_QOS_KEY_END;
+    }
+  }
 }
